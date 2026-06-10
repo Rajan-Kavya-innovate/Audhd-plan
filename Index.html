@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Engine · RWTH Grind</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #0a0b0e;
+  --card: #111318;
+  --card2: #181b22;
+  --border: #222530;
+  --border2: #2a2e3d;
+  --green: #3ecf8e;
+  --blue: #4f8ef7;
+  --orange: #ff7043;
+  --yellow: #f5c842;
+  --purple: #9b7ff4;
+  --matcha: #7cb87c;
+  --text: #e2e5f0;
+  --muted: #5a5f74;
+  --muted2: #7a8099;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Outfit', sans-serif; min-height: 100vh; }
+a { color: inherit; text-decoration: none; }
+
+/* ─── HERO ─── */
+.hero {
+  padding: 32px 20px 24px;
+  background: linear-gradient(160deg, #0d1020 0%, #0a0b0e 70%);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 220px; height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(79,142,247,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  color: var(--blue);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.hero h1 {
+  font-size: clamp(24px, 7vw, 38px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+  margin-bottom: 6px;
+}
+.hero h1 em { font-style: normal; color: var(--green); }
+.hero-sub { font-size: 13px; color: var(--muted2); margin-bottom: 18px; line-height: 1.5; }
+
+.pills { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
+.pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 4px 10px;
+  border-radius: 100px;
+  border: 1px solid var(--border2);
+  color: var(--muted2);
+  background: var(--card);
+}
+.pill.hot { border-color: rgba(255,112,67,.3); color: var(--orange); background: rgba(255,112,67,.07); }
+.pill.go  { border-color: rgba(62,207,142,.3); color: var(--green); background: rgba(62,207,142,.07); }
+
+.countdown-strip {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.cdown {
+  background: var(--card2);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  flex: 1;
+  min-width: 120px;
+}
+.cdown-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--yellow);
+  line-height: 1;
+}
+.cdown-label { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+/* ─── TABS ─── */
+.tabs {
+  display: flex;
+  gap: 2px;
+  padding: 14px 14px 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  padding: 9px 15px 11px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--muted);
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: all .2s;
+  background: transparent;
+  border-radius: 0;
+}
+.tab.active { color: var(--text); border-bottom-color: var(--blue); }
+.tab:hover:not(.active) { color: var(--muted2); }
+
+/* ─── CONTENT ─── */
+.content { display: none; padding: 18px 16px 48px; max-width: 680px; margin: 0 auto; }
+.content.active { display: block; }
+
+.section-title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin: 22px 0 10px;
+}
+.section-title:first-child { margin-top: 0; }
+
+.banner {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--blue);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 13px;
+  color: var(--muted2);
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+.banner strong { color: var(--text); }
+.banner.warn { border-left-color: var(--yellow); }
+.banner.success { border-left-color: var(--green); }
+
+/* ─── DAILY BLOCKS ─── */
+.day-block {
+  display: flex;
+  gap: 0;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 8px;
+  transition: border-color .15s;
+}
+.day-block:hover { border-color: var(--border2); }
+.day-block.anchor { border-color: rgba(79,142,247,.35); }
+.day-block.anchor .db-time { background: rgba(79,142,247,.08); }
+.day-block.anchor .db-body { border-left: 2px solid var(--blue); }
+.day-block.matcha-block { border-color: rgba(124,184,124,.3); }
+.day-block.matcha-block .db-time { background: rgba(124,184,124,.07); }
+.day-block.matcha-block .db-body { border-left: 2px solid var(--matcha); }
+
+.db-time {
+  background: var(--card2);
+  border-right: 1px solid var(--border);
+  padding: 12px 8px;
+  min-width: 66px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.5;
+  text-align: center;
+}
+.db-body { background: var(--card); padding: 12px 14px; flex: 1; }
+.db-title {
+  font-weight: 600;
+  font-size: 13.5px;
+  margin-bottom: 3px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  line-height: 1.3;
+}
+.db-desc { font-size: 12.5px; color: var(--muted2); line-height: 1.55; }
+.db-desc strong { color: var(--text); }
+
+.badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 100px;
+  font-weight: 500;
+  letter-spacing: .3px;
+  white-space: nowrap;
+}
+.b-anchor  { background: rgba(79,142,247,.15);  color: var(--blue); }
+.b-study   { background: rgba(155,127,244,.15); color: var(--purple); }
+.b-food    { background: rgba(255,112,67,.15);  color: var(--orange); }
+.b-rest    { background: rgba(62,207,142,.15);  color: var(--green); }
+.b-matcha  { background: rgba(124,184,124,.15); color: var(--matcha); }
+.b-mind    { background: rgba(245,200,66,.15);  color: var(--yellow); }
+.b-nptel   { background: rgba(155,127,244,.2);  color: #c4b0ff; }
+
+/* ─── STUDY PHASES ─── */
+.subject-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.subj-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.subj-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 13px 15px;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid transparent;
+  transition: background .15s;
+}
+.subj-card.open .subj-header { border-bottom-color: var(--border); background: var(--card2); }
+.subj-name { font-weight: 700; font-size: 14px; display: flex; align-items: center; gap: 8px; }
+.subj-meta { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+.subj-body { display: none; padding: 14px 15px; }
+.subj-card.open .subj-body { display: block; }
+.chevron { color: var(--muted); font-size: 12px; transition: transform .2s; }
+.subj-card.open .chevron { transform: rotate(180deg); }
+
+.plan-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.plan-phase-label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+  padding-top: 2px;
+  min-width: 56px;
+}
+.plan-phase-body { color: var(--muted2); }
+.plan-phase-body strong { color: var(--text); }
+
+.dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.dot-green  { background: var(--green); }
+.dot-yellow { background: var(--yellow); }
+.dot-orange { background: var(--orange); }
+.dot-blue   { background: var(--blue); }
+
+/* exam date badge */
+.exam-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: rgba(245,200,66,.12);
+  color: var(--yellow);
+  border: 1px solid rgba(245,200,66,.2);
+}
+.prereq-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  padding: 3px 9px;
+  border-radius: 6px;
+  background: rgba(62,207,142,.1);
+  color: var(--green);
+  border: 1px solid rgba(62,207,142,.2);
+}
+
+/* ─── MEAL PLAN ─── */
+.meal-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; margin-bottom: 8px; overflow: hidden; }
+.meal-header { display: flex; justify-content: space-between; align-items: center; padding: 13px 15px; cursor: pointer; user-select: none; }
+.meal-card.open .meal-header { border-bottom: 1px solid var(--border); background: var(--card2); }
+.meal-title { font-weight: 700; font-size: 13.5px; }
+.meal-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.meal-body { display: none; padding: 14px 15px; }
+.meal-card.open .meal-body { display: block; }
+
+.meal-row { display: grid; grid-template-columns: 70px 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.meal-row:last-child { border-bottom: none; }
+.meal-lbl { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); padding-top: 2px; }
+.meal-name { font-weight: 600; font-size: 13px; margin-bottom: 3px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.meal-detail { font-size: 12px; color: var(--muted2); line-height: 1.5; }
+.batch-tag { font-size: 9px; font-family: 'JetBrains Mono', monospace; background: rgba(62,207,142,.12); color: var(--green); border-radius: 4px; padding: 1px 6px; }
+
+/* ─── RULES ─── */
+.rule {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 13px 14px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.rule-icon { font-size: 18px; flex-shrink: 0; padding-top: 1px; }
+.rule-title { font-weight: 700; font-size: 13px; margin-bottom: 3px; }
+.rule-body { font-size: 12.5px; color: var(--muted2); line-height: 1.5; }
+
+/* ─── TIMELINE visual ─── */
+.exam-timeline { position: relative; padding-left: 16px; }
+.exam-timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px; top: 6px; bottom: 6px;
+  width: 2px;
+  background: var(--border2);
+  border-radius: 2px;
+}
+.et-item { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 10px; position: relative; }
+.et-dot {
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 3px;
+  position: relative;
+  left: -11px;
+  margin-right: -11px;
+  border: 2px solid var(--bg);
+}
+.et-body { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 13px; flex: 1; }
+.et-date { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--muted); margin-bottom: 3px; }
+.et-name { font-weight: 700; font-size: 13px; margin-bottom: 2px; }
+.et-note { font-size: 11.5px; color: var(--muted2); }
+.et-urgent { border-color: rgba(245,200,66,.3); }
+.et-prereq { border-color: rgba(62,207,142,.25); }
+
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">MSc Automotive · RWTH Aachen</div>
+  <h1>Your <em>Grind Engine</em></h1>
+  <p class="hero-sub">27 credits · 5 graded exams · 1.0 is the target.<br>Built around how your brain actually works.</p>
+
+  <div class="pills">
+    <div class="pill">ICDM · MDORS · SDV · AE3 · AE Practical</div>
+    <div class="pill go">🍵 Matcha in the morning</div>
+    <div class="pill hot">Aug 5 · AUDHD Assessment</div>
+  </div>
+
+  <div class="countdown-strip">
+    <div class="cdown">
+      <div class="cdown-val" id="days-icdm">—</div>
+      <div class="cdown-label">days → ICDM<br><span style="color:var(--muted);font-size:10px">Aug 18 · first big exam</span></div>
+    </div>
+    <div class="cdown">
+      <div class="cdown-val" id="days-today">—</div>
+      <div class="cdown-label">days to grind<br><span style="color:var(--muted);font-size:10px">from today, Jun 10</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <div class="tab active" onclick="showTab('day',this)">☀️ Daily</div>
+  <div class="tab" onclick="showTab('subjects',this)">📚 Subjects</div>
+  <div class="tab" onclick="showTab('exams',this)">📅 Exam Dates</div>
+  <div class="tab" onclick="showTab('meals',this)">🍗 Meals</div>
+  <div class="tab" onclick="showTab('rules',this)">⚡ Rules</div>
+</div>
+
+<!-- ════ DAILY TAB ════ -->
+<div class="content active" id="tab-day">
+
+  <div class="banner success">
+    <strong>4 anchor blocks</strong> keep this system running even on broken days. They're marked in blue. Protect them above everything else.
+  </div>
+
+  <div class="section-title">Morning Engine</div>
+
+  <div class="day-block anchor">
+    <div class="db-time">06:00<br>↓<br>06:15</div>
+    <div class="db-body">
+      <div class="db-title"><span class="badge b-anchor">ANCHOR</span> Wake up · don't negotiate</div>
+      <div class="db-desc">Alarm goes off. Sit up. Drink full glass of water immediately. Open curtains. <strong>No phone for first 10 minutes.</strong> This single habit changes the whole day.</div>
+    </div>
+  </div>
+
+  <div class="day-block matcha-block">
+    <div class="db-time">06:15<br>↓<br>06:45</div>
+    <div class="db-body">
+      <div class="db-title"><span class="badge b-matcha">MATCHA</span> Matcha prep + meditation</div>
+      <div class="db-desc"><strong>This is your ignition ritual.</strong> Boil water (80°C, not boiling), sift matcha, whisk 30–40 sec until frothy. While it cools slightly — 10 min meditation. Sit, eyes closed, just follow breath. Headspace/Waking Up or just a timer. Matcha gives calm alertness (L-theanine + caffeine = no crash). <strong>Drink while sitting, not rushing.</strong></div>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="db-time">06:45<br>↓<br>07:10</div>
+    <div class="db-body">
+      <div class="db-title"><span class="badge b-food">FOOD</span> Breakfast · zero decisions</div>
+      <div class="db-desc">Decided the night before. Eggs + toast, overnight oats, or reheat batch food. <strong>Eat at the table, not the desk.</strong> 5 min after eating: brush teeth, get dressed.</div>
+    </div>
+  </div>
+
+  <div class="day-block anchor">
+    <div class="db-time">07:10<br>↓<br>07:20</div>
+    <div class="db-body">
+      <div class="db-title"><span class="badge b-anchor">ANCHOR</span> 10-min daily plan</div>
+      <div class="db-desc">Open notebook. Write: <strong>(1) Which subject — NPTEL or slides (2) Which topic exactly (3) What meal today.</strong> Done. Day is decided. No mid-day paralysis.</div>
+    </div>
+  </div>
+
+  <div class="section-title">Morning Study (your sharpest window)</div>
+
+  <div class="day-block anchor">
+    <div class="db-time">07:20<br>↓<br>09:20</div>
+    <div class="db-body">
+      <div class="db-title"><span class="badge b-nptel">NPTEL</span> Foundation Block · NPTEL / IIT lectures</div>
+      <div class="db-desc"><strong>First priority every morning until foundation is solid.</strong> Watch at 1.25–1.5x. Pause and redo derivations yourself on paper — don't just watch. When a concept clicks, move on. Use this window for ICDM + MDORS foundation first (your Aug 18 exam). 50 min on · 10 min off.</div>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="db-time">09:20<br>↓<br>09:40</div>
+    <div class="db-body">
+      <div class="db-title"><span class="badge b-rest">BREAK</span> Move · water · outside if possible</div>
+      <div class="db-desc">Walk around. Stretch. No YouTube spirals. Timer set for 20 min. This break is what makes Block 2 possible.</div>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="db-time">09:40<br>↓<br>11:40</div>
+    <div class="db-body">
+      <div class="db-title"><span class="badge b-study">STUDY</span> Lecture Slides Block · one subject</div>
+      <div class="db-desc">Go through lecture slides for the same topic you just built foundation on. <strong>Don't copy slides — translate into your own words.</strong> If NPTEL covered it: slides will feel fast. If stuck on a slide: go back to first principles in your notes, 5 min max, then move on. 50 min on · 10 min off.</div>
+    </div>
+  </div>
+
+  <div class="section-title">Midday</div>
+
+  <div class="day-block">
+    <div class="db-time">11:40<br>↓<br>12:20</div>
+    <div class="db-body">
+      <div class="db-title"><span class="badge b-food">LUNCH</span> Batch meal · away from desk</div>
+      <div class="db-desc">Heat batch food (2 min microwave). Eat at table. No screens. 5–10 min sit after eating. Let brain consolidate the morning session — this is not wasted time.</div>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="db-time">12:20<br>↓<br>13:00</div>
+    <div class="db-body">
+      <div class="db-title"><span class="badge b-mind">REST</span> Nap or light walk</div>
+      <div class="db-desc">Optional 20-min nap (set alarm). Or walk outside, lie down, music. <strong>Do not start another topic here.</strong> Brain needs to consolidate what it learned. This makes the afternoon block 40% more effective.</div>
+    </div>
+  </div>
+
+  <div class="section-title">Afternoon Study</div>
+
+  <div class="day-block">
+    <div class="db-time">13:00<br>↓<br>15:00</div>
+    <div class="db-body">
+      <div class="db-title"><span class="badge b-study">PROBLEMS</span> Past papers · worked examples</div>
+      <div class="db-desc">Afternoon brain = problem-solving mode, not reading. Grab past exam questions for today's topic. Try them. Get stuck — good. Work through it. <strong>This is where 1.0 is built.</strong> One hour per subject if rotating two.</div>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="db-time">15:00<br>↓<br>15:20</div>
+    <div class="db-body">
+      <div class="db-title"><span class="badge b-food">SNACK</span> Break + snack</div>
+      <div class="db-desc">Fruit, nuts, yogurt, batch leftovers. Hydrate. Get up fully. Protects Block 4.</div>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="db-time">15:20<br>↓<br>17:00</div>
+    <div class="db-body">
+      <div class="db-title"><span class="badge b-study">REVIEW</span> Consolidation · summary sheets</div>
+      <div class="db-desc">Write summary of today's topic in your own words. Draw diagrams. Make 5–10 flashcards. <strong>This is the step most students skip — and why they forget everything.</strong> 1 hr 40 min. Do it.</div>
+    </div>
+  </div>
+
+  <div class="section-title">Evening</div>
+
+  <div class="day-block anchor">
+    <div class="db-time">17:00<br>↓<br>18:30</div>
+    <div class="db-body">
+      <div class="db-title"><span class="badge b-food">ANCHOR</span> Batch cook window · Tue + Fri only</div>
+      <div class="db-desc"><strong>Cooking is ONLY here, ONLY Tuesday and Friday evenings.</strong> Never during study hours. This is the rule that stops 3-hour food chaos. Podcast or music on. Cook for 2–3 days. See Meals tab.</div>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="db-time">17:00<br>↓<br>18:00</div>
+    <div class="db-body">
+      <div class="db-title"><span class="badge b-study">LIGHT</span> Flashcard review · Mon/Wed/Thu/Sat only</div>
+      <div class="db-desc">(On non-cooking days.) Anki flashcards, re-read summary sheets, watch one lecture clip at 1.5x. Low intensity. Brain tired — don't push derivations now.</div>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="db-time">18:00<br>↓<br>19:30</div>
+    <div class="db-body">
+      <div class="db-title"><span class="badge b-rest">FREE</span> Fully off · protect this</div>
+      <div class="db-desc">Call family, watch something, go outside, whatever you enjoy. <strong>This is not optional recovery — it's what makes tomorrow possible.</strong></div>
+    </div>
+  </div>
+
+  <div class="day-block anchor">
+    <div class="db-time">19:30<br>↓<br>20:00</div>
+    <div class="db-body">
+      <div class="db-title"><span class="badge b-anchor">ANCHOR</span> Wind-down ritual</div>
+      <div class="db-desc">Prepare tomorrow's breakfast (overnight oats or set out eggs). Write 3 topics studied today in notebook. Set 06:00 alarm. <strong>No bright screens after 20:00.</strong> Sleep is when RWTH exams are won.</div>
+    </div>
+  </div>
+
+  <div class="day-block">
+    <div class="db-time">20:00<br>↓<br>22:00</div>
+    <div class="db-body">
+      <div class="db-title"><span class="badge b-rest">SLEEP PREP</span> Wind down · lights out by 22:00</div>
+      <div class="db-desc">Read (not study material), shower, relax. 7.5–8 hrs sleep = your competitive edge. The students getting 1.0 sleep well.</div>
+    </div>
+  </div>
+
+  <div class="banner" style="margin-top:16px">
+    🛒 <strong>Saturday afternoon (14:00–17:00):</strong> Grocery shopping. Budget 2–3 hrs including travel + cooking any urgent stock. This is locked into Saturday — never a weekday.
+  </div>
+</div>
+
+<!-- ════ SUBJECTS TAB ════ -->
+<div class="content" id="tab-subjects">
+
+  <div class="banner">
+    <strong>Your NPTEL + Slides strategy:</strong> Every topic gets two passes — NPTEL for first principles (morning Block 1), then lecture slides for exam-specific content (morning Block 2). Problems in the afternoon. People say 1.0 in all subjects is impossible. Those people didn't have a system.
+  </div>
+
+  <div class="section-title">Graded Exams (GPA counted) · target 1.0 in all</div>
+
+  <div class="subject-grid">
+
+    <div class="subj-card" onclick="toggleCard(this)">
+      <div class="subj-header">
+        <div>
+          <div class="subj-name">🔥 ICDM <span class="exam-badge">Aug 18</span></div>
+          <div class="subj-meta">Internal Combustion Engine Design & Mechanics · FIRST EXAM</div>
+        </div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="subj-body">
+        <div class="plan-row"><div class="dot dot-green"></div><div class="plan-phase-body"><strong>Jun 10 – Jul 7 (Phase 1):</strong> NPTEL thermodynamics + IC engine fundamentals every morning. Build the why before the what. Draw engine cycles from memory.</div></div>
+        <div class="plan-row"><div class="dot dot-yellow"></div><div class="plan-phase-body"><strong>Jul 8 – Aug 4 (Phase 2):</strong> Lecture slides, all past exam papers. Derive everything once by hand. Identify the 5–6 question types RWTH repeats every year.</div></div>
+        <div class="plan-row"><div class="dot dot-orange"></div><div class="plan-phase-body"><strong>Aug 5 – Aug 17 (Phase 3):</strong> No new content. Only: timed past papers, weak topic drills, formula sheet from memory. Sleep 8 hrs. Aug 5 is also your psychiatrist appointment — be gentle that week.</div></div>
+      </div>
+    </div>
+
+    <div class="subj-card" onclick="toggleCard(this)">
+      <div class="subj-header">
+        <div>
+          <div class="subj-name">⚙️ MDORS <span class="exam-badge">Aug 25</span></div>
+          <div class="subj-meta">Machine Dynamics of Rigid Systems</div>
+        </div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="subj-body">
+        <div class="plan-row"><div class="dot dot-green"></div><div class="plan-phase-body"><strong>Jun 10 – Jul 14 (Phase 1):</strong> NPTEL dynamics / vibrations / rigid body mechanics. This is mechanics at its core — your bachelor's gaps will show here, NPTEL fixes them. Khan Academy mechanics as supplement if needed.</div></div>
+        <div class="plan-row"><div class="dot dot-yellow"></div><div class="plan-phase-body"><strong>Jul 15 – Aug 17 (Phase 2):</strong> Slides + problem sets. MDORS problems are the kind you can get locked into — set a 20-min timer per problem. If not solved, look at solution, understand, redo from scratch.</div></div>
+        <div class="plan-row"><div class="dot dot-orange"></div><div class="plan-phase-body"><strong>Aug 18 – Aug 24 (Phase 3):</strong> 1 week sharp sprint after ICDM. Only weak spots + timed papers. You've already been building this foundation for months — trust it.</div></div>
+      </div>
+    </div>
+
+    <div class="subj-card" onclick="toggleCard(this)">
+      <div class="subj-header">
+        <div>
+          <div class="subj-name">🧭 SDV <span class="exam-badge">Sep 12</span></div>
+          <div class="subj-meta">Software-Defined Vehicle</div>
+        </div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="subj-body">
+        <div class="plan-row"><div class="dot dot-green"></div><div class="plan-phase-body"><strong>Jul 1 – Aug 10 (Phase 1+2):</strong> Start lighter during ICDM/MDORS prep. Use afternoons or Saturdays for SDV slides. Get a feel for the exam format — it may lean conceptual over derivation.</div></div>
+        <div class="plan-row"><div class="dot dot-orange"></div><div class="plan-phase-body"><strong>Aug 26 – Sep 11 (Phase 3):</strong> Full sprint for 2 weeks after MDORS. Slides, summaries, past papers. You have breathing room before this one — use it well.</div></div>
+      </div>
+    </div>
+
+    <div class="subj-card" onclick="toggleCard(this)">
+      <div class="subj-header">
+        <div>
+          <div class="subj-name">🔁 AE3 <span class="exam-badge">Sep 21 · retake</span></div>
+          <div class="subj-meta">Automotive Engineering 3 · Retake</div>
+        </div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="subj-body">
+        <div class="plan-row"><div class="dot dot-green"></div><div class="plan-phase-body"><strong>Now – Aug 17:</strong> 30 min review session every Saturday morning — don't let this go cold. Identify exactly which topics caused the previous result. Those are your targets, not the whole subject.</div></div>
+        <div class="plan-row"><div class="dot dot-orange"></div><div class="plan-phase-body"><strong>Sep 13 – Sep 20:</strong> 1-week hard sprint after SDV. You know the exam format already — use that advantage. Pure weak-topic + past papers. You got this.</div></div>
+      </div>
+    </div>
+
+    <div class="subj-card" onclick="toggleCard(this)">
+      <div class="subj-header">
+        <div>
+          <div class="subj-name">📋 AE Practical <span class="exam-badge">Jul 27 · MCQ 9–10am</span></div>
+          <div class="subj-meta">Multiple choice · 1 hour · prepare smart</div>
+        </div>
+        <div class="chevron">▼</div>
+      </div>
+      <div class="subj-body">
+        <div class="plan-row"><div class="dot dot-yellow"></div><div class="plan-phase-body"><strong>Jun 10 – Jul 26:</strong> MCQ exams reward breadth over depth. Review all topics once, make a cheatsheet of key facts/numbers/definitions. Do practice MCQs every Sunday for 30 min.</div></div>
+        <div class="plan-row"><div class="dot dot-orange"></div><div class="plan-phase-body"><strong>Jul 25–26 (day before):</strong> Only your summary cheatsheet. Full sleep. MCQ = recall under time pressure — rest is the prep.</div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-title">Pre-req Exams (GPA not counted — but need to pass)</div>
+  <div class="banner warn">
+    These don't affect your GPA but you must pass them. Don't neglect — schedule 1 block per week for each from Jul onwards.
+  </div>
+
+  <div class="subject-grid">
+    <div class="subj-card" onclick="toggleCard(this)">
+      <div class="subj-header">
+        <div>
+          <div class="subj-name">AE1 <span class="prereq-badge">Aug 15</span></div>
+          <div class="subj-meta">Pre-req · pass only</div>
+        </div><div class="chevron">▼</div>
+      </div>
+      <div class="subj-body">
+        <div class="plan-row"><div class="dot dot-blue"></div><div class="plan-phase-body">1 dedicated Saturday morning block per week from Jul 1. Focus on passing, not perfecting. Get past papers, identify minimum viable content.</div></div>
+      </div>
+    </div>
+    <div class="subj-card" onclick="toggleCard(this)">
+      <div class="subj-header">
+        <div>
+          <div class="subj-name">AE2 <span class="prereq-badge">Aug 29</span></div>
+          <div class="subj-meta">Pre-req · pass only</div>
+        </div><div class="chevron">▼</div>
+      </div>
+      <div class="subj-body">
+        <div class="plan-row"><div class="dot dot-blue"></div><div class="plan-phase-body">Start weekly review from mid-July. After AE Practical on Jul 27, shift Saturday slot fully to AE2 prep.</div></div>
+      </div>
+    </div>
+    <div class="subj-card" onclick="toggleCard(this)">
+      <div class="subj-header">
+        <div>
+          <div class="subj-name">MPF <span class="prereq-badge">Sep 9</span></div>
+          <div class="subj-meta">Pre-req · pass only</div>
+        </div><div class="chevron">▼</div>
+      </div>
+      <div class="subj-body">
+        <div class="plan-row"><div class="dot dot-blue"></div><div class="plan-phase-body">After Aug 25 (MDORS done), dedicate one full light study day per week until Sep 9. You'll have more bandwidth by then.</div></div>
+      </div>
+    </div>
+    <div class="subj-card" onclick="toggleCard(this)">
+      <div class="subj-header">
+        <div>
+          <div class="subj-name">Mechatronics <span class="prereq-badge">Sep 24</span></div>
+          <div class="subj-meta">Pre-req · pass only</div>
+        </div><div class="chevron">▼</div>
+      </div>
+      <div class="subj-body">
+        <div class="plan-row"><div class="dot dot-blue"></div><div class="plan-phase-body">Last exam. After AE3 retake on Sep 21, 3-day sprint. Mechatronics concepts likely overlap with things you've been studying all summer — it should feel lighter.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ EXAM DATES TAB ════ -->
+<div class="content" id="tab-exams">
+  <div class="banner">
+    <strong>Goal:</strong> All graded subjects done and dusted before late September. Pre-reqs need passing, not perfecting.
+  </div>
+
+  <div class="section-title">Graded Exams · target 1.0</div>
+  <div class="exam-timeline">
+
+    <div class="et-item">
+      <div class="et-dot" style="background:var(--yellow)"></div>
+      <div class="et-body et-urgent">
+        <div class="et-date">Jul 27 · 09:00–10:00</div>
+        <div class="et-name">📋 AE Practical (MCQ)</div>
+        <div class="et-note">1-hour MCQ. Breadth over depth. Start Sunday MCQ practice now.</div>
+      </div>
+    </div>
+
+    <div class="et-item">
+      <div class="et-dot" style="background:var(--orange)"></div>
+      <div class="et-body et-urgent">
+        <div class="et-date">Aug 5 · Psychiatrist appointment</div>
+        <div class="et-name">🏥 AUDHD Assessment · Uniklinik</div>
+        <div class="et-note">Important for you — not an exam, but schedule lighter study that week. Be kind to yourself around this date.</div>
+      </div>
+    </div>
+
+    <div class="et-item">
+      <div class="et-dot" style="background:var(--orange)"></div>
+      <div class="et-body et-urgent">
+        <div class="et-date">Aug 18</div>
+        <div class="et-name">🔥 ICDM · Internal Combustion Engine Design & Mechanics</div>
+        <div class="et-note">First and most important graded exam. Foundation must be solid by Aug 1.</div>
+      </div>
+    </div>
+
+    <div class="et-item">
+      <div class="et-dot" style="background:var(--yellow)"></div>
+      <div class="et-body et-urgent">
+        <div class="et-date">Aug 25</div>
+        <div class="et-name">⚙️ MDORS · Machine Dynamics of Rigid Systems</div>
+        <div class="et-note">One week after ICDM. Sprint week Aug 18–24.</div>
+      </div>
+    </div>
+
+    <div class="et-item">
+      <div class="et-dot" style="background:var(--blue)"></div>
+      <div class="et-body">
+        <div class="et-date">Sep 12</div>
+        <div class="et-name">🧭 SDV · Software-Defined Vehicle</div>
+        <div class="et-note">More breathing room. Build steadily during summer, sprint in Sep.</div>
+      </div>
+    </div>
+
+    <div class="et-item">
+      <div class="et-dot" style="background:var(--purple)"></div>
+      <div class="et-body">
+        <div class="et-date">Sep 21</div>
+        <div class="et-name">🔁 AE3 · Retake</div>
+        <div class="et-note">You know this exam. Targeted weak-topic prep, not full re-study.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="section-title">Pre-req Exams · pass only</div>
+  <div class="exam-timeline">
+
+    <div class="et-item">
+      <div class="et-dot" style="background:var(--green)"></div>
+      <div class="et-body et-prereq">
+        <div class="et-date">Aug 15</div>
+        <div class="et-name">AE1</div>
+        <div class="et-note">3 days before ICDM. Keep it light the week of — summary review only.</div>
+      </div>
+    </div>
+
+    <div class="et-item">
+      <div class="et-dot" style="background:var(--green)"></div>
+      <div class="et-body et-prereq">
+        <div class="et-date">Aug 29</div>
+        <div class="et-name">AE2</div>
+        <div class="et-note">4 days after MDORS. Rest 1–2 days, then 2-day sprint.</div>
+      </div>
+    </div>
+
+    <div class="et-item">
+      <div class="et-dot" style="background:var(--green)"></div>
+      <div class="et-body et-prereq">
+        <div class="et-date">Sep 9</div>
+        <div class="et-name">MPF</div>
+        <div class="et-note">3 days before SDV. Build steadily through August.</div>
+      </div>
+    </div>
+
+    <div class="et-item">
+      <div class="et-dot" style="background:var(--green)"></div>
+      <div class="et-body et-prereq">
+        <div class="et-date">Sep 24</div>
+        <div class="et-name">Mechatronics</div>
+        <div class="et-note">Last exam of the season. 3 days after AE3. Sprint, done, celebrate.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ════ MEALS TAB ════ -->
+<div class="content" id="tab-meals">
+
+  <div class="banner success">
+    🧊 <strong>Batch cook Tuesday + Friday, 17:00–18:30 only.</strong> You have: oven, air fryer, stovetop, microwave. No pressure cooker — minced beef and chicken work great without one. Groceries: <strong>Saturday 14:00–17:00</strong> (2–3 hrs built in).
+  </div>
+
+  <div class="section-title">Batch Session 1 · Tuesday → serves until Thursday</div>
+
+  <div class="meal-card open" onclick="toggleMeal(this)">
+    <div class="meal-header">
+      <div>
+        <div class="meal-title">🍗 Air Fryer Chicken Thighs + Rice + Roasted Veg</div>
+        <div class="meal-sub">45 min total · high protein · reheat in 2 min</div>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-row">
+        <div class="meal-lbl">COOK</div>
+        <div>
+          <div class="meal-name">Chicken thighs (air fryer) <span class="batch-tag">BATCH</span></div>
+          <div class="meal-detail">6–8 thighs, olive oil, paprika, garlic powder, salt, pepper. Air fry 200°C · 20 min. Done. Store in fridge. Microwave 2 min to reheat any day.</div>
+        </div>
+      </div>
+      <div class="meal-row">
+        <div class="meal-lbl">COOK</div>
+        <div>
+          <div class="meal-name">Big pot of rice (stovetop) <span class="batch-tag">BATCH</span></div>
+          <div class="meal-detail">1.5 cups dry rice = ~4.5 cups cooked. Store in container. Reheat with splash of water in microwave.</div>
+        </div>
+      </div>
+      <div class="meal-row">
+        <div class="meal-lbl">COOK</div>
+        <div>
+          <div class="meal-name">Oven roasted veg <span class="batch-tag">BATCH</span></div>
+          <div class="meal-detail">Bell peppers, zucchini, onion, broccoli. Chop, olive oil, salt. Oven 200°C · 25 min. Keeps 4 days. Frozen veg works just as well — no shame.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Batch Session 2 · Friday → serves until Sunday</div>
+
+  <div class="meal-card" onclick="toggleMeal(this)">
+    <div class="meal-header">
+      <div>
+        <div class="meal-title">🐟 Oven Salmon / Fish + Pasta + Quick Salad</div>
+        <div class="meal-sub">40 min total · omega-3 brain food · light + satisfying</div>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-row">
+        <div class="meal-lbl">COOK</div>
+        <div>
+          <div class="meal-name">Baked fish (oven) <span class="batch-tag">BATCH</span></div>
+          <div class="meal-detail">3–4 salmon fillets or white fish. Season: lemon juice, garlic, olive oil, salt. Oven 200°C · 15–18 min. Make 3–4 portions at once.</div>
+        </div>
+      </div>
+      <div class="meal-row">
+        <div class="meal-lbl">COOK</div>
+        <div>
+          <div class="meal-name">Pasta batch (stovetop) <span class="batch-tag">BATCH</span></div>
+          <div class="meal-detail">Large pot. Toss cooked pasta with olive oil + garlic so it doesn't stick. Reheat with splash of water in microwave.</div>
+        </div>
+      </div>
+      <div class="meal-row">
+        <div class="meal-lbl">FRESH</div>
+        <div>
+          <div class="meal-name">Cucumber + tomato salad (3 min)</div>
+          <div class="meal-detail">Chop, olive oil, lemon, salt. Add feta if you have it. Makes 2 days. No cooking required.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Rescue meals (when batch runs out or you're bored)</div>
+
+  <div class="meal-card" onclick="toggleMeal(this)">
+    <div class="meal-header">
+      <div>
+        <div class="meal-title">🥩 Spiced Minced Beef Pan — beef without pressure cooker</div>
+        <div class="meal-sub">20 min · stovetop · batch-able · very satisfying</div>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-row">
+        <div class="meal-lbl">COOK</div>
+        <div>
+          <div class="meal-name">Minced beef + rice or pasta <span class="batch-tag">BATCH</span></div>
+          <div class="meal-detail">Fry minced beef in pan with onion, garlic. Add cumin, paprika, salt, chili flakes. 12–15 min stovetop — no pressure cooker needed. Serve over batch rice. Makes 3 portions. This is your beef fix.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="meal-card" onclick="toggleMeal(this)">
+    <div class="meal-header">
+      <div>
+        <div class="meal-title">🌯 Chicken Wraps (5 min using batch chicken)</div>
+        <div class="meal-sub">Zero cooking · exciting · feels like a treat</div>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-row">
+        <div class="meal-lbl">ASSEMBLE</div>
+        <div>
+          <div class="meal-name">Leftover chicken + tortilla</div>
+          <div class="meal-detail">Slice batch chicken. Tortilla + lettuce + tomato + spoon of Greek yogurt (acts like sour cream) + hot sauce. Roll. Done. Feels like takeout, takes 5 min.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="meal-card" onclick="toggleMeal(this)">
+    <div class="meal-header">
+      <div>
+        <div class="meal-title">🥚 Emergency Egg Fried Rice (10 min)</div>
+        <div class="meal-sub">Uses batch rice · when everything else runs out</div>
+      </div>
+      <div class="chevron">▼</div>
+    </div>
+    <div class="meal-body">
+      <div class="meal-row">
+        <div class="meal-lbl">COOK</div>
+        <div>
+          <div class="meal-name">Leftover rice + 3 eggs + soy sauce</div>
+          <div class="meal-detail">Pan with oil, fry batch rice 3 min. Push to side. Scramble 3 eggs in pan. Mix. Soy sauce + whatever veg is around. This is your rescue meal — always keep eggs and batch rice stocked.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Every morning breakfast (under 5 min · decided night before)</div>
+  <div class="rule" style="margin-bottom:6px">
+    <div class="rule-icon">☀️</div>
+    <div>
+      <div class="rule-title">Option A — Eggs (4 min)</div>
+      <div class="rule-body">2–3 scrambled eggs + toast. While eggs cook, bread is toasting. Simple, high protein, keeps you full until lunch.</div>
+    </div>
+  </div>
+  <div class="rule" style="margin-bottom:6px">
+    <div class="rule-icon">🥣</div>
+    <div>
+      <div class="rule-title">Option B — Overnight oats (0 min morning)</div>
+      <div class="rule-body">Prep night before: oats + milk + banana + honey in jar. Grab from fridge in morning. Zero morning effort.</div>
+    </div>
+  </div>
+  <div class="rule">
+    <div class="rule-icon">🛒</div>
+    <div>
+      <div class="rule-title">Weekly grocery run · Saturday 14:00–17:00</div>
+      <div class="rule-body">Chicken thighs/breast, salmon or white fish, minced beef, eggs, rice, pasta, tortillas, mixed veg (frozen OK), Greek yogurt, bread, olive oil, garlic, paprika, cumin, salt/pepper, fruit, nuts for snacks. Same list every week — no decision fatigue at the shop either.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ RULES TAB ════ -->
+<div class="content" id="tab-rules">
+
+  <div class="section-title">The system's non-negotiables</div>
+
+  <div class="rule"><div class="rule-icon">🔒</div><div><div class="rule-title">Cooking is locked to 17:00–18:30 on Tuesday + Friday</div><div class="rule-body">Never during study hours. Never randomly on a Wednesday because you're hungry and confused. This one rule eliminates the 3-hour food chaos spiral.</div></div></div>
+
+  <div class="rule"><div class="rule-icon">🍵</div><div><div class="rule-title">Matcha + meditation is your morning ignition — not optional</div><div class="rule-body">Matcha (L-theanine + caffeine) gives calm, sustained focus without jitters or crash. 10-min meditation before it kicks in primes your brain. This combo is worth more than an extra 30 min of study.</div></div></div>
+
+  <div class="rule"><div class="rule-icon">📚</div><div><div class="rule-title">NPTEL first principles → slides → problems · always in this order</div><div class="rule-body">Never jump into slides without understanding the why. But also never get stuck on first principles for hours. NPTEL gives foundation, slides give exam content, problems give 1.0.</div></div></div>
+
+  <div class="rule"><div class="rule-icon">⏱️</div><div><div class="rule-title">Timers are your scaffold, not your willpower</div><div class="rule-body">50 min on, 10 off. 20-min nap (alarm set). 20-min break (timer set). Every transition has a timer. You don't rely on "feeling like" transitioning — the timer decides.</div></div></div>
+
+  <div class="rule"><div class="rule-icon">🛑</div><div><div class="rule-title">Stuck on a concept? 20-min rule</div><div class="rule-body">Set a 20-min timer when stuck. If not solved: write down exactly where you're stuck, move on, come back later or look it up. Don't spend 2 hours on one proof during study block.</div></div></div>
+
+  <div class="rule"><div class="rule-icon">📝</div><div><div class="rule-title">Morning planning session decides the whole day</div><div class="rule-body">Which subject. Which specific topic. Which meal. Written down. This is the single decision that prevents 10 small decisions from fragmenting your day.</div></div></div>
+
+  <div class="rule"><div class="rule-icon">🔋</div><div><div class="rule-title">Sleep 7.5 hrs minimum — non-negotiable</div><div class="rule-body">Sleep is when your brain consolidates what you studied. Cutting sleep for study time is a net loss. The students at RWTH getting 1.0 sleep properly. This is not a cliché — it's neuroscience.</div></div></div>
+
+  <div class="rule"><div class="rule-icon">🛒</div><div><div class="rule-title">Grocery shopping is Saturday 14:00–17:00 only</div><div class="rule-body">2–3 hrs locked in. Never on a weekday. Never impulse. Same list every week. You buy once, you cook twice (Tue + Fri), you eat for 7 days.</div></div></div>
+
+  <div class="rule"><div class="rule-icon">🔄</div><div><div class="rule-title">Broken morning ≠ broken day</div><div class="rule-body">Missed 07:20 start? Start at 08:00. Slept in until 9? Start at 9. The day isn't cancelled. Just start the next block from wherever you are.</div></div></div>
+
+  <div class="rule"><div class="rule-icon">🧠</div><div><div class="rule-title">When locked in, you solve hard problems — trust that</div><div class="rule-body">You said it yourself. Your brain can memorise fast and solve hard problems when focused. The system's job is to get you to "locked in" reliably. Once there, trust yourself.</div></div></div>
+
+  <div class="section-title">ADHD/AUDHD specific hacks</div>
+
+  <div class="rule"><div class="rule-icon">📍</div><div><div class="rule-title">Same place, same time, same ritual = automatic focus</div><div class="rule-body">Matcha → meditation → same desk → same playlist. Your brain learns: this sequence = focus mode. After 2 weeks, you won't need willpower to start. The ritual fires automatically.</div></div></div>
+
+  <div class="rule"><div class="rule-icon">✅</div><div><div class="rule-title">Make progress visible · cross things off physically</div><div class="rule-body">Paper notebook. Cross off each block. Draw a box, tick it. Visual evidence defeats the ADHD feeling of "I've done nothing today" even when you've done a lot.</div></div></div>
+
+  <div class="rule"><div class="rule-icon">🎧</div><div><div class="rule-title">Brown noise or rain sounds for deep blocks</div><div class="rule-body">YouTube "brown noise study" or Lofi Girl. Same audio every session = brain cue for focus. Consistent sensory environment reduces ADHD context-switching.</div></div></div>
+
+  <div class="rule"><div class="rule-icon">🐜</div><div><div class="rule-title">Overwhelmed? Shrink the task to one sentence</div><div class="rule-body">Not "study ICDM thermodynamics." Instead: "open notebook and write the first law of thermodynamics." Do that one thing. Momentum comes from action, not motivation. The next step appears after the first one.</div></div></div>
+
+</div>
+
+<script>
+  const today = new Date('2026-06-10');
+  const icdm = new Date('2026-08-18');
+  const diff = d => Math.ceil((d - today) / 86400000);
+  document.getElementById('days-icdm').textContent = diff(icdm);
+  document.getElementById('days-today').textContent = diff(icdm);
+
+  function showTab(name, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    el.classList.add('active');
+  }
+  function toggleCard(el) { el.classList.toggle('open'); }
+  function toggleMeal(el) { el.classList.toggle('open'); }
+</script>
+</body>
+</html>
